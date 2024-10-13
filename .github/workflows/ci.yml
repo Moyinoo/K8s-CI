@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  ENVIRONMENT: ${{ github.ref_name }}
+  ENVIRONMENT: ${{ vars.ENVIRONMENT }}
   ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
   AWS_REGION: ${{ vars.AWS_REGION }}
   BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
