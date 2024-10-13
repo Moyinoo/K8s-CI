@@ -100,6 +100,7 @@ jobs:
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
         run: |
            rm -rf manifest
+           mkdir -p manifest
            helm template $APPLICATION_NAME devops/helm/demoapp -f devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir=manifest \
             --set api.image.repository=$REGISTRY/$ENVIRONMENT/api \
             --set api.image.tag=$SHA8 \
