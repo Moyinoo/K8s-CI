@@ -103,7 +103,7 @@ jobs:
           rm -rf manifest
 
       - name: Generate Helm Manifest
-        run:
+        run: |
           helm template $APPLICATION_NAME .devops/helm/demoapp -f .devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
             --set api.image.repository=$REGISTRY/$ENVIRONMENT/api \
             --set api.image.tag=$SHA8 \
