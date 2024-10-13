@@ -21,10 +21,6 @@ env:
   CD_DESTINATION_OWNER: ${{ vars.CD_DESTINATION_OWNER }}
   CD_PROJECT: ${{ vars.CD_PROJECT }}
 
-permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
-  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   get_inputs:
@@ -39,7 +35,6 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
-          role-to-assume: arn:aws:iam::195275634034:role/github-oidc
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: "false"
       - name: Install AWS cli
@@ -60,7 +55,6 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
-          role-to-assume: arn:aws:iam::195275634034:role/github-oidc
           aws-region: ${{ env.AWS_REGION }}
           mask-aws-account-id: "false"
       - name: Login to Amazon ECR
@@ -72,7 +66,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           COMPONENT_NAME: "api"
         run: |
-          docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
+          docker build -f .devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
           docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8
       - name: Build ui image and push to ECR
         env:
@@ -80,7 +74,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           COMPONENT_NAME: "ui"
         run: |
-          docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
+          docker build -f .devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
           docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8
       - name: Build lambda image and push to ECR
         env:
@@ -88,7 +82,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           COMPONENT_NAME: "lambda"
         run: |
-          docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/api/
+          docker build -f .devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/api/
           docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8
 
   k8s_manifest_storing:
@@ -104,26 +98,26 @@ jobs:
           REGISTRY: ${{ needs.build_images_and_push.outputs.registry }}
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
-      - name: Clean up manifest directory
-        run: rm -rf manifest
-
-      - name: Generate Helm templates
+      - name: Cleam up manifest Directory   
         run: |
-          helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml \
-          --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
-          --set api.image.repository=$REGISTRY/$ENVIRONMENT/api \
-          --set api.image.tag=$SHA8 \
-          --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
-          --set ui.image.tag=$SHA8 \
-          --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN \
-          --set api.configmapData.SSM_PREFIX=/$ENVIRONMENT \
-          --set api.configmapData.AWS_REGION=$AWS_REGION \
-          --set lambda.code.imageURI=$REGISTRY/$ENVIRONMENT/lambda:$SHA8 \
-          --set lambda.mapping.eventSourceARN=$SQS_ARN \
-          --set lambda.name=lambda \
-          --set lambda.env=$ENVIRONMENT \
-          --set lambda.account_id=$ACCOUNT_ID \
-          --set lambda.aws_region=$AWS_REGION
+          rm -rf manifest
+
+      - name: Generate Helm Manifest
+        run:
+          helm template $APPLICATION_NAME .devops/helm/demoapp -f .devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
+            --set api.image.repository=$REGISTRY/$ENVIRONMENT/api \
+            --set api.image.tag=$SHA8 \
+            --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
+            --set ui.image.tag=$SHA8 \
+            --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN \
+            --set api.configmapData.SSM_PREFIX=/$ENVIRONMENT \
+            --set api.configmapData.AWS_REGION=$AWS_REGION \
+            --set lambda.code.imageURI=$REGISTRY/$ENVIRONMENT/lambda:$SHA8 \
+            --set lambda.mapping.eventSourceARN=$SQS_ARN \
+            --set lambda.name=lambda \
+            --set lambda.env=$ENVIRONMENT \
+            --set lambda.account_id=$ACCOUNT_ID \
+            --set lambda.aws_region=$AWS_REGION
       - name: Pushes to another repository
         uses: cpina/github-action-push-to-another-repository@main
         env:
