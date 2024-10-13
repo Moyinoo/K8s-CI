@@ -98,7 +98,6 @@ jobs:
           REGISTRY: ${{ needs.build_images_and_push.outputs.registry }}
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
-      - name: Cleam up manifest Directory   
         run: |
           rm -rf manifest
 
