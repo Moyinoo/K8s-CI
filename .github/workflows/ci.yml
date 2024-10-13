@@ -105,20 +105,20 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
         run: |
-          rm -rf manifest \
-          helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
-            --set api.image.repository=$REGISTRY/$ENVIRONMENT/api \
-            --set api.image.tag=$SHA8 \
-            --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
-            --set ui.image.tag=$SHA8 \
-            --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN \
-            --set api.configmapData.SSM_PREFIX=/$ENVIRONMENT \
-            --set api.configmapData.AWS_REGION=$AWS_REGION \
-            --set lambda.code.imageURI=$REGISTRY/$ENVIRONMENT/lambda:$SHA8 \
-            --set lambda.mapping.eventSourceARN=$SQS_ARN \
-            --set lambda.name=lambda \
-            --set lambda.env=$ENVIRONMENT \
-            --set lambda.account_id=$ACCOUNT_ID \
+          rm -rf manifest
+          helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest /
+            --set api.image.repository=$REGISTRY/$ENVIRONMENT/api /
+            --set api.image.tag=$SHA8 /
+            --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui /
+            --set ui.image.tag=$SHA8 /
+            --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN /
+            --set api.configmapData.SSM_PREFIX=/$ENVIRONMENT /
+            --set api.configmapData.AWS_REGION=$AWS_REGION /
+            --set lambda.code.imageURI=$REGISTRY/$ENVIRONMENT/lambda:$SHA8 /
+            --set lambda.mapping.eventSourceARN=$SQS_ARN /
+            --set lambda.name=lambda /
+            --set lambda.env=$ENVIRONMENT /
+            --set lambda.account_id=$ACCOUNT_ID /
             --set lambda.aws_region=$AWS_REGION
       - name: Pushes to another repository
         uses: cpina/github-action-push-to-another-repository@main
