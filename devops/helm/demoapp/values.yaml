@@ -86,13 +86,6 @@ ingress:
     hosts:
       - host: demoapp.prod.moyinopoolas.com
         paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: api
-                port:
-                  number: 80
           - path: /
             pathType: Prefix
             backend:
