@@ -15,14 +15,6 @@ api:
   configmapData:
     SSM_PREFIX: "/placeholder"
     AWS_REGION: "placeholder"
-    S3_BUCKET_NAME: "ssm:/s3_bucket/for_output_files/name"
-    DYNAMODB_TABLE_NAME: "ssm:/dynamodb/table_name"
-    DB_HOST: "ssm:/rds/endpoint"
-    DB_PORT: "3306"
-    DB_USERNAME: "ssm:/rds/username"
-    DB_PASSWORD: "ssm:/rds/password"
-    DB_NAME: "ssm:/rds/db_name"
-    SQS_QUEUE_NAME: "ssm:/sqs/name"
     API_SOCKET: ":80"
 
   serviceAccount:
@@ -92,7 +84,7 @@ ingress:
       # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: demo.projects.tentech.vok.today
+      - host: demoapp.prod.moyinopoolas.com
         paths:
           - path: /api
             pathType: Prefix
