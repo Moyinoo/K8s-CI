@@ -60,8 +60,9 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
         run: |
-          rm -r manifest
-          helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml  --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
+           if [ -d manifest ]; then
+           rm -r manifest
+           helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml  --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
             --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
             --set ui.image.tag=$SHA8 \
             --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN \
