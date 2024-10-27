@@ -60,10 +60,11 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
         run: |
            rm -rf manifest
-           helm template $APPLICATION_NAME devops/helm/demoapp -f devops/helm/demoapp/values.yaml  --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
-            --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
-            --set ui.image.tag=$SHA8 \
-            --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN
+           helm template $APPLICATION_NAME devops/helm/demoapp -f devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir ./manifest \
+           --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
+           --set ui.image.tag=$SHA8 \
+           --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN
+
       - name: Pushes to another repository
         uses: cpina/github-action-push-to-another-repository@main
         env:
