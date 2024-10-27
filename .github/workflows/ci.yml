@@ -4,9 +4,9 @@ name: Integration
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: ["prod"]
+    branches: ["main"]
   pull_request:
-    branches: ["prod"]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -60,7 +60,8 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           SQS_ARN: ${{ needs.get_inputs.outputs.sqs_arn }}
         run: |
-           helm template $APPLICATION_NAME .devops/helm/demoapp -f devops/helm/demoapp/values.yaml  --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
+           rm -rf manifest
+           helm template $APPLICATION_NAME devops/helm/demoapp -f devops/helm/demoapp/values.yaml  --create-namespace -n $APPLICATION_NAMESPACE --output-dir manifest \
             --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
             --set ui.image.tag=$SHA8 \
             --set ingress.ingress.hosts[0].host=$APPLICATION_NAME.$ENVIRONMENT.$BASE_DOMAIN
