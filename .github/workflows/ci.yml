@@ -68,7 +68,6 @@ jobs:
           COMPONENT_NAME: "ui"
           DOTNET_ROOT: $HOME/.dotnet
           PATH: $HOME/.dotnet:$PATH
-      - name: Install Bash
         run: |
            sudo apt-get update
            sudo apt-get install -y bash 
