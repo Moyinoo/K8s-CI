@@ -68,9 +68,6 @@ jobs:
           COMPONENT_NAME: "ui"
           DOTNET_ROOT: $HOME/.dotnet
           PATH: $HOME/.dotnet:$PATH
-        run: |
-           apt-get update
-           apt-get install -y bash 
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v3
         with:
