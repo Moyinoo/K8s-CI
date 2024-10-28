@@ -68,7 +68,6 @@ jobs:
           COMPONENT_NAME: "ui"
           DOTNET_ROOT: $HOME/.dotnet
           PATH: $HOME/.dotnet:$PATH
-      - name: Setup Dotnet
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'  # Update to the .NET version you're using
