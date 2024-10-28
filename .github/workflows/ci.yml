@@ -44,14 +44,48 @@ jobs:
       - name: Install AWS cli
         uses: unfor19/install-aws-cli-action@v1
 
-      
-
-  k8s_manifest_storing:
+build_images_and_push:
     needs: [get_inputs]
     runs-on: self-hosted
-    container:
-      image: alpine/helm:latest
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
     steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::195275634034:role/github-oidc
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: "false"
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build ui image and push to ECR
+        env:
+          SHA8: ${{ needs.get_inputs.outputs.sha8 }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          COMPONENT_NAME: "ui"
+
+      # Set up .NET environment
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.x'  # Update to the .NET version you're using
+
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore    
+      - name: Build and Push  
+        run: |
+          docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
+          docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8   
+    k8s_manifest_storing:
+      needs: [get_inputs]
+      runs-on: self-hosted
+      container:
+      image: alpine/helm:latest
+      steps:
       - name: Check out
         uses: actions/checkout@v4
       - name: Create File
