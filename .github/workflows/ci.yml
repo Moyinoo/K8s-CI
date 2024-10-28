@@ -69,8 +69,8 @@ jobs:
           DOTNET_ROOT: $HOME/.dotnet
           PATH: $HOME/.dotnet:$PATH
         run: |
-           sudo apt-get update
-           sudo apt-get install -y bash 
+           apt-get update
+           apt-get install -y bash 
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v3
         with:
