@@ -66,9 +66,6 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           COMPONENT_NAME: "ui"
-
-      # Set up .NET environment
-      - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'  # Update to the .NET version you're using
@@ -95,7 +92,6 @@ jobs:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
         run: |
           rm -rf manifest
-          mkdir -p manifest
           helm template $APPLICATION_NAME devops/helm/demoapp -f devops/helm/demoapp/values.yaml --create-namespace -n $APPLICATION_NAMESPACE --output-dir=manifest \
           --set ui.image.repository=$REGISTRY/$ENVIRONMENT/ui \
           --set ui.image.tag=$SHA8 \
