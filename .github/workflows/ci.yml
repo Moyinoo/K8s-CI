@@ -77,6 +77,8 @@ jobs:
         run: dotnet restore    
       - name: Build and Push  
         run: |
+          sudo apt-get update
+          sudo apt-get install -y bash
           docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
           docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8   
 
