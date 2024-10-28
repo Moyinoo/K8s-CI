@@ -61,20 +61,13 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Build ui image and push to ECR
+      - name: Pull ui image, Tag and push to ECR
         env:
           SHA8: ${{ needs.get_inputs.outputs.sha8 }}
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          COMPONENT_NAME: "ui"
-          DOTNET_ROOT: $HOME/.dotnet
-          PATH: $HOME/.dotnet:$PATH
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0'  # Update to the .NET version you're using
-          cache: false   
-      - name: Build and Push  
+          COMPONENT_NAME: "ui"  
         run: |
-          docker build -f devops/docker/$COMPONENT_NAME.dockerfile -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
+          docker pull 195275634034.dkr.ecr.us-east-1.amazonaws.com/productservice -t $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8 src/$COMPONENT_NAME/
           docker push $REGISTRY/$ENVIRONMENT/$COMPONENT_NAME:$SHA8   
 
   k8s_manifest_storing:
